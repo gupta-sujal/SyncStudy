@@ -3,12 +3,36 @@ from django.http import HttpResponse
 from django.db.models import Q
 from .models import Room,Topic
 from .forms import RoomForm
+from django.contrib.auth.models import User
+from django.contrib.auth import authenticate,logout, login
+from django.contrib import messages #for flash messafes on login
+# rooms=[
+#     {'id':1,'name':'learning django'},
+#     { 'id':2, 'name':'learning python'},
+#     { 'id':3,'name':'designing UI/UX'},
+# ]
 
-rooms=[
-    {'id':1,'name':'learning django'},
-    { 'id':2, 'name':'learning python'},
-    { 'id':3,'name':'designing UI/UX'},
-]
+def loginPage(request):
+    if request.method=='POST':
+        username=request.POST.get('username')
+        password=request.POST.get('password')
+        # try catch block for if the user exists or not
+        try:
+            user=User.objects.get(username=username)
+        except:
+            messages.error(request,'User Not Found')
+            return
+        user=authenticate(request,username=username,password=password)
+        if user is not None:
+            login(request,user)
+            return redirect('home')
+        else:
+            messages.error(request,'Username or Password Not Found')
+    return render(request,'base/login_register.html', context={})
+
+def logoutUser(request):
+    logout(request)
+    return redirect('home')
 
 def home(request):
     q=request.GET.get('q') if request.GET.get('q')!=None else ''

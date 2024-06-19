@@ -11,6 +11,9 @@
     <h3>Browse by Topics</h3>
     <hr>
     <div>
+      <a href="{% url 'home' %}">All</a>
+    </div>
+    <div>
         {% for topic in topics %}
         <div>
             <a href="{% url 'home' %}?q={{topic.name}}">{{topic}}</a>
