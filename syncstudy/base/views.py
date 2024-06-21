@@ -5,6 +5,7 @@ from .models import Room,Topic
 from .forms import RoomForm
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
+from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import authenticate,logout, login
 from django.contrib import messages #for flash messafes on login
 # rooms=[
@@ -14,6 +15,9 @@ from django.contrib import messages #for flash messafes on login
 # ]
 
 def loginPage(request):
+
+    page='login'
+
     if request.user.is_authenticated:
         return redirect('home')
     if request.method=='POST':
@@ -31,11 +35,29 @@ def loginPage(request):
             return redirect('home')
         else:
             messages.error(request,'Username or Password Not Found')
-    return render(request,'base/login_register.html', context={})
+    return render(request,'base/login_register.html', context={'page':page})
 
 def logoutUser(request):
     logout(request)
     return redirect('home')
+
+def registerPage(request):
+    page='register'
+    form=UserCreationForm()
+
+    if request.method == 'POST':
+        form=UserCreationForm(request.POST)
+        if(form.is_valid()):
+            user=form.save(commit=False)
+            # commit = false wont save the user directly bcoz we first need to clean the data lilbit
+            user.username=user.username.lower()
+            user.save()   
+            login(request,user)
+            return redirect('home')
+        else:
+            messages.error(request,"Error !!!")
+        
+    return render(request,'base/login_register.html',context={'form':form})
 
 def home(request):
     q=request.GET.get('q') if request.GET.get('q')!=None else ''
