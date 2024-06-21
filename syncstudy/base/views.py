@@ -3,6 +3,7 @@ from django.http import HttpResponse
 from django.db.models import Q
 from .models import Room,Topic
 from .forms import RoomForm
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate,logout, login
 from django.contrib import messages #for flash messafes on login
@@ -51,6 +52,10 @@ def room(request,pk):
 
     return render(request,'base/room.html',context)
 
+
+# if the user is not logged in, wont be able to access this page
+# redirect users
+@login_required(login_url='/login')
 def create_room(request):
     form=RoomForm()
     if request.method=='POST':#if the request is of POST type
@@ -61,9 +66,13 @@ def create_room(request):
     context={'form':form}
     return render(request, 'base/room_form.html', context)
 
+# if the user is not logged in, wont be able to access this page
+# redirect users
+@login_required(login_url='/login')
 def updateRoom(request,pk):
     room=Room.objects.get(id=pk)
-
+    if request.user != room.user:
+        return HttpResponse('You are not allowed to update this room')
     form=RoomForm(instance=room)
     if request.method=='POST':#if the request is of POST type
         form=RoomForm(request.POST, instance=room)# add the instance to tell which room to update
@@ -73,7 +82,9 @@ def updateRoom(request,pk):
     context={'form':form}
     return render(request, 'base/room_form.html', context)
 
-
+# if the user is not logged in, wont be able to access this page
+# redirect users
+@login_required(login_url='/login')
 def deleteRoom(request,pk):
     room=Room.objects.get(id=pk)
     context={'obj':room}
