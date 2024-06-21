@@ -2,4 +2,19 @@
 
 {% block content %}
 <h1>{{room.name}}</h1>
+<p>{{room.description}}</p>
+<div class="comment-wrapper">
+<h3>Messages</h3>
+<hr>
+{% for message in room_messages %}
+<div>
+    <small>@{{message.user.username}}  {{message.created|timesince}}</small>
+    <br>
+    <small>Last updated: {{ message.updated }}</small>
+    <p>{{message.body}}</p>
+    <hr>
+</div>
+{% endfor %}
+    
+</div>
 {% endblock %}
