@@ -103,12 +103,18 @@ def room(request,pk):
 @login_required(login_url='/login')
 def create_room(request):
     form=RoomForm()
+    topics=Topic.objects.all()
     if request.method=='POST':#if the request is of POST type
-        form=RoomForm(request.POST)
-        if(form.is_valid):# if the form is valid
-            form.save()
-            return redirect('home')
-    context={'form':form}
+        topic_name=request.POST.get('topic')
+        topic, created=Topic.objects.get_or_create(name=topic_name)
+        Room.objects.create(
+            host=request.user,
+            topic=topic,
+            name=request.POST.get('name'),
+            description=request.POST.get('description'),
+        )
+        return redirect('home')
+    context={'form':form,'topics':topics}
     return render(request, 'base/room_form.html', context)
 
 # if the user is not logged in, wont be able to access this page
@@ -116,15 +122,22 @@ def create_room(request):
 @login_required(login_url='/login')
 def updateRoom(request,pk):
     room=Room.objects.get(id=pk)
+    topics=Topic.objects.all()
     if request.user != room.host:
         return HttpResponse('You are not allowed to update this room')
     form=RoomForm(instance=room)
     if request.method=='POST':#if the request is of POST type
-        form=RoomForm(request.POST, instance=room)# add the instance to tell which room to update
-        if(form.is_valid):# if the form is valid
-            form.save()
-            return redirect('home')
-    context={'form':form}
+        topic_name=request.POST.get('topic')
+        topic, created=Topic.objects.get_or_create(name=topic_name)
+        room.name=request.POST.get('name')
+        room.topic=topic
+        room.description=request.POST.get('description')
+        room.save()
+        # form=RoomForm(request.POST, instance=room)# add the instance to tell which room to update
+        # if(form.is_valid):# if the form is valid
+        #     form.save()
+        return redirect('home')
+    context={'form':form,'topics':topics,'room':room}
     return render(request, 'base/room_form.html', context)
 
 # if the user is not logged in, wont be able to access this page
