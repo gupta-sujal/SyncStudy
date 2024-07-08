@@ -2,7 +2,7 @@ from django.shortcuts import render,redirect
 from django.http import HttpResponse
 from django.db.models import Q
 from .models import Room,Topic,Message
-from .forms import RoomForm
+from .forms import RoomForm,UserForm
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
@@ -28,7 +28,7 @@ def loginPage(request):
             user=User.objects.get(username=username)
         except:
             messages.error(request,'User Not Found')
-            return
+            return redirect('home')
         user=authenticate(request,username=username,password=password)
         if user is not None:
             login(request,user)
@@ -57,7 +57,7 @@ def registerPage(request):
         else:
             messages.error(request,"Error !!!")
         
-    return render(request,'base/login_register.html',context={'form':form})
+    return render(request,'base/login_register.html',context={'form':form,'page':page})
 
 def home(request):
     q=request.GET.get('q') if request.GET.get('q')!=None else ''
@@ -163,5 +163,17 @@ def deleteMessage(request,pk):
         message.delete()
         return redirect('home')
     return render(request, 'base/delete.html', context)
+
+
+@login_required(login_url='login')
+def updateUser(request):
+    user=request.user
+    form=UserForm(instance=user)
+    if request.method == 'POST':
+        form=UserForm(request.POST,instance=user)
+        if form.is_valid():
+            form.save()
+            return redirect('user-profile',pk=user.id)
+    return render(request,'base/update-user.html',{'form':form,'user':user})
 
 

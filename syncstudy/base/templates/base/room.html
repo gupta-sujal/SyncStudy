@@ -85,7 +85,7 @@
                         </div>
                         <span>@{{message.user.username}}</span>
                       </a>
-                      <span class="thread__date">{{message.created|timesince}}o</span>
+                      <span class="thread__date">{{message.created|timesince}} ago</span>
                     </div>
 
                     {% if request.user == message.user %}
@@ -110,7 +110,10 @@
             </div>
           </div>
           <div class="room__message">
-            <form action="#"><input name="" placeholder="Write your message here..." /></form>
+            <form action="" method="POST">
+              {% csrf_token %}
+              <input name="body" placeholder="Write your message here..." />
+            </form>
           </div>
         </div>
         <!-- Room End -->
@@ -120,7 +123,7 @@
           <h3 class="participants__top">Participants <span>({{participants.count}} Joined)</span></h3>
           <div class="participants__list scroll">
             {% for participant in participants %}
-            <a href="{% url 'user-profile' user.id %}" class="participant">
+            <a href="{% url 'user-profile' participant.id %}" class="participant">
               <div class="avatar avatar--medium">
                 <img src="https://randomuser.me/api/portraits/men/37.jpg" />
               </div>
