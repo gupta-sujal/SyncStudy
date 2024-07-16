@@ -2,9 +2,8 @@ from django.shortcuts import render,redirect
 from django.http import HttpResponse
 from django.db.models import Q
 from .models import Room,Topic,Message,User
-from .forms import RoomForm,UserForm
+from .forms import RoomForm,UserForm,MyUserCreationForm
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import authenticate,logout, login
 from django.contrib import messages #for flash messafes on login
 # rooms=[
@@ -20,15 +19,15 @@ def loginPage(request):
     if request.user.is_authenticated:
         return redirect('home')
     if request.method=='POST':
-        username=request.POST.get('username')
+        email=request.POST.get('email').lower()
         password=request.POST.get('password')
         # try catch block for if the user exists or not
         try:
-            user=User.objects.get(username=username)
+            user=User.objects.get(email=email)
         except:
             messages.error(request,'User Not Found')
             return redirect('home')
-        user=authenticate(request,username=username,password=password)
+        user=authenticate(request,email=email,password=password)
         if user is not None:
             login(request,user)
             return redirect('home')
@@ -42,10 +41,10 @@ def logoutUser(request):
 
 def registerPage(request):
     page='register'
-    form=UserCreationForm()
+    form=MyUserCreationForm()
 
     if request.method == 'POST':
-        form=UserCreationForm(request.POST)
+        form=MyUserCreationForm(request.POST)
         if(form.is_valid()):
             user=form.save(commit=False)
             # commit = false wont save the user directly bcoz we first need to clean the data lilbit
