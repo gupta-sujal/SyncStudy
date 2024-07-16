@@ -20,7 +20,8 @@
                     </div>
                 </div>
                 <div class="layout__body">
-                    <form class="form" action="" method='POST'>
+                    <form class="form" action="" method='POST' enctype="multipart/form-data">
+                        <!-- multipart represents that we are also going to add files -->
                       {% csrf_token %}
                       {% for field in form %}
                       <div class="form__group">
